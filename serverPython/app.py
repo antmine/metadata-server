@@ -1,11 +1,14 @@
 import sys
 import json
+from collections import deque
 from flask import Flask, jsonify, make_response, request, abort
 
 app = Flask(__name__)
 
 with open('config.json', 'r') as f:
 	configData = json.load(f)
+
+queue = deque(maxlen=configData["queueSize"])
 
 @app.after_request
 def after_request(data):
@@ -28,6 +31,8 @@ def not_found(error):
 @app.route('/log', methods = ['POST'])
 def create_log():
 	print request.json
+	queue.appendleft(request.json)
+	print queue
 	return 'OK'
 
 if __name__ == '__main__':
