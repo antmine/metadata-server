@@ -1,7 +1,11 @@
 import sys
+import json
 from flask import Flask, jsonify, make_response, request, abort
 
 app = Flask(__name__)
+
+with open('config.json', 'r') as f:
+	configData = json.load(f)
 
 @app.after_request
 def after_request(data):
@@ -23,8 +27,8 @@ def not_found(error):
 
 @app.route('/log', methods = ['POST'])
 def create_log():
-	print request.json['name']
+	print request.json
 	return 'OK'
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=2345)
+    app.run(host= configData["host"], port= configData["port"])
