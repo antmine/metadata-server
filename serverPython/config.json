@@ -1,8 +1,9 @@
 {
   "mysql":{
-    "url": "sqlurl",
+    "url": "localhost",
     "user": "root",
-    "password": "root"
+    "password": "root",
+    "database": "APPLICATION"
   },
   "host": "localhost",
   "port": 5000,
