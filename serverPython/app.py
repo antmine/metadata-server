@@ -37,9 +37,9 @@ class serverReception():
 
 	@app.route('/log', methods = ['POST'])
 	def create_log():
-		print request.json
+		print (request.json)
 		queue.appendleft(request.json)
-		print queue
+		print (queue)
 		return 'OK'
 
 if __name__ == '__main__':
@@ -47,4 +47,4 @@ if __name__ == '__main__':
 	server.app.run(host= configData["host"], port= configData["port"])
 	thread = Thread(target = server)
 	thread.start()
-	print "thread serverReception finished"
+	print ("thread serverReception finished")

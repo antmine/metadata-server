@@ -17,9 +17,11 @@ with open('config.json', 'r') as file:
 
     cursor = mysql.connect().cursor()
 
-####### Exemple SQL #######
-#    sql = "SELECT * from APPLICATION;"
-#    cursor.execute(sql)
-#    data = cursor.fetchone()
-#    if data is None:
-#        print "Error sql : " + sql
+    ####### Exemple SQL #######
+
+    sql = "SELECT * from WEBSITE;"
+    cursor.execute(sql)
+    data = cursor.fetchall()
+
+    for website in data:
+        print(website)
