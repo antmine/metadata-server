@@ -1,0 +1,11 @@
+{
+  "mysql":{
+    "url": "localhost",
+    "user": "root",
+    "password": "root",
+    "database": "ADMINISTRATION"
+  },
+  "host": "localhost",
+  "port": 5000,
+  "queueSize": 256
+}
