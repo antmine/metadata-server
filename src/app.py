@@ -7,7 +7,7 @@ from collections import deque
 from threading import Thread
 from flask import Flask, jsonify, make_response, request, abort
 
-with open('config.json', 'r') as f:
+with open('./conf/config.json', 'r') as f:
 	configData = json.load(f)
 
 queue = deque(maxlen=configData["queueSize"])
