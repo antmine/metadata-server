@@ -2,12 +2,13 @@
 
 import sys
 import json
+import bdd
 
 from collections import deque
 from threading import Thread
 from flask import Flask, jsonify, make_response, request, abort
 
-with open('./conf/config.json', 'r') as f:
+with open('../conf/config.json', 'r') as f:
 	configData = json.load(f)
 
 queue = deque(maxlen=configData["queueSize"])
@@ -42,6 +43,11 @@ class serverReception():
 		return 'OK'
 
 if __name__ == '__main__':
+	##### SQL THREAD #####
+	sql_thread = bdd.sqlThread()
+	sql_thread.start()
+
+	##### SERVER THREAD #####
 	server = serverReception()
 	server.app.run(host= configData["host"], port= configData["port"])
 	thread = Thread(target = server)

@@ -1,29 +1,44 @@
 #!/usr/bin/env python3.5
 
 import json
+import threading
+import app as main
 
 from flask import Flask
 from flaskext.mysql import MySQL
 
-mysql = MySQL()
 app = Flask(__name__)
+configData = json.loads(json.dumps(main.configData))
 
-with open('config.json', 'r') as file:
-    configMySql = json.load(file)["mysql"]
+class sqlThread(threading.Thread):
 
-    app.config['MYSQL_DATABASE_USER'] = configMySql["user"]
-    app.config['MYSQL_DATABASE_PASSWORD'] = configMySql["password"]
-    app.config['MYSQL_DATABASE_HOST'] = configMySql["url"]
-    app.config['MYSQL_DATABASE_DB'] = configMySql["database"]
-    mysql.init_app(app)
+    cursor = None
 
-    cursor = mysql.connect().cursor()
+    def __init__(self):
+        self.initSql()
+        print("Sql initialized")
+        threading.Thread.__init__(self)
 
-    ####### Exemple SQL #######
+    def run(self):
+        print("Sql thread is running")
+        while True:
+            if len(main.queue) > 0:
+                self.process_data()
+                main.queue.get()
 
-    sql = "SELECT * from WEBSITE;"
-    cursor.execute(sql)
-    data = cursor.fetchall()
+    def initSql(self):
+        mysql = MySQL()
+        app.config['MYSQL_DATABASE_USER'] = configData["mysql"]["user"]
+        app.config['MYSQL_DATABASE_PASSWORD'] = configData["mysql"]["password"]
+        app.config['MYSQL_DATABASE_HOST'] = configData["mysql"]["url"]
+        app.config['MYSQL_DATABASE_DB'] = configData["mysql"]["database"]
+        mysql.init_app(app)
+        self.cursor = mysql.connect().cursor()
 
-    for website in data:
-        print(website)
+    def process_data(self):
+        sql = "SELECT * from WEBSITE;"
+        self.cursor.execute(sql)
+        data = self.cursor.fetchall()
+
+        for website in data:
+            print(website)
