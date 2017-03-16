@@ -5,7 +5,7 @@
     "password": "root",
     "database": "ADMINISTRATION"
   },
-  "host": "0.0.0.0",
+  "host": "localhost",
   "port": 7890,
-  "queueSize": 256
+  "queueSize": 3
 }
