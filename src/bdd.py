@@ -2,14 +2,17 @@
 
 import json
 import threading
-import app as main
+import run as main
 
 from flask import Flask
 from flaskext.mysql import MySQL
 
 app = Flask(__name__)
-configData = json.loads(json.dumps(main.configData))
+#configData = json.loads(json.dumps(main.configData))
 
+with open('./conf/config.json', 'r') as f:
+	configData = json.load(f)
+    
 class sqlThread(threading.Thread):
 
     cursor = None
@@ -24,7 +27,7 @@ class sqlThread(threading.Thread):
         while True:
             if len(main.queue) > 0:
                 self.process_data()
-                main.queue.get()
+                main.queue.getLog()
 
     def initSql(self):
         mysql = MySQL()

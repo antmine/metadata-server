@@ -8,12 +8,10 @@ import threading
 import run as main
 from collections import deque
 from flask import Flask, jsonify, make_response, request, abort
-from flask.ext.classy import FlaskView
 
 configData = json.loads(json.dumps(main.configData))
-#queue = LogQueue.LogQueue(configData["queueSize"])
 
-class serverReception(threading.Thread, FlaskView):
+class serverReception(threading.Thread):
 
 	logger = logging.basicConfig(filename='logFile.log', level=logging.INFO)
 	app = Flask(__name__)
@@ -29,6 +27,8 @@ class serverReception(threading.Thread, FlaskView):
 		response.headers['Access-Control-Allow-Headers'] = "Origin, X-Requested-With, Content-Type, Accept"
 		response.headers['Access-Control-Allow-Methods'] = 'POST'
 		return response
+
+	tasks = []
 
 	@app.errorhandler(400)
 	def bad_request(error):
