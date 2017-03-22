@@ -2,27 +2,29 @@
 
 import sys
 import json
+from Singleton import Singleton
 
 from  collections import deque
 from threading import Thread
 
+with open('./conf/config.json', 'r') as f:
+	configData = json.load(f)
+
+@Singleton
 class LogQueue:
-
-    size = 0;
-
-    def __init__(self, size):
-        self.size = size
-
-    queue = deque(maxlen=size);
+    def __init__(self):
+        self.size = configData['queueSize']
+        self.queue = deque(maxlen=self.size);
 
     def addLog(self, log):
-        print ("adding item to queue of size:" + str(self.size))
         if (len(self.queue) >= self.size):
-            print ("queue is full wait...")
+            sys.stdout.write("queue is full wait...\n")
+            sys.stdout.flush()
             return False
         else:
             self.queue.append(log)
-            print ("added item to queue")
+            sys.stdout.write("added item to queue\n")
+            sys.stdout.flush()
             return True
 
     def getLog(self):

@@ -5,6 +5,7 @@ import json
 import logging
 import LogQueue
 import threading
+import LogQueue
 import run as main
 from collections import deque
 from flask import Flask, jsonify, make_response, request, abort
@@ -28,8 +29,6 @@ class serverReception(threading.Thread):
 		response.headers['Access-Control-Allow-Methods'] = 'POST'
 		return response
 
-	tasks = []
-
 	@app.errorhandler(400)
 	def bad_request(error):
 		return make_response(jsonify( { 'error': 'Bad Request' } ), 400)
@@ -40,9 +39,11 @@ class serverReception(threading.Thread):
 
 	@app.route('/log', methods = ['POST'])
 	def create_log():
-		print (request.json)
-		if main.queue.addLog(request.json):
-			print (main.queue.queue)
-			return make_response(jsonify( { 'succes': 'Ok' } ), 200)
+		sys.stdout.write(str(request.json) + '\n')
+		sys.stdout.flush()
+		if LogQueue.LogQueue.Instance().addLog(request.json):
+			sys.stdout.write(str(LogQueue.LogQueue.Instance().queue) + '\n')
+			sys.stdout.flush()
+			return make_response(jsonify( { 'success': 'Ok' } ), 200)
 		else:
 			return make_response(jsonify({'error': 'Service Unavailable - Queue is full'}), 503)
