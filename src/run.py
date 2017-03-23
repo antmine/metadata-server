@@ -11,8 +11,8 @@ with open('./conf/config.json', 'r') as f:
 
 if __name__ == '__main__':
     ### bdd Thread ###
-    #sql_thread = bdd.sqlThread()
-    #sql_thread.start()
+    sql_thread = bdd.sqlThread()
+    sql_thread.start()
     ### serverReception Thread ###
     serverReception_thread = serverReception.serverReception()
     serverReception_thread.start()

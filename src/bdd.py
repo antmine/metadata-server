@@ -1,7 +1,9 @@
 #!/usr/bin/env python3.5
 
 import json
+import sys
 import threading
+import LogQueue
 import run as main
 
 from flask import Flask
@@ -12,22 +14,28 @@ app = Flask(__name__)
 
 with open('./conf/config.json', 'r') as f:
 	configData = json.load(f)
-    
+
 class sqlThread(threading.Thread):
 
     cursor = None
 
     def __init__(self):
         self.initSql()
-        print("Sql initialized")
+        sys.stdout.write("Sql initialized\n")
+        sys.stdout.flush()
         threading.Thread.__init__(self)
 
     def run(self):
-        print("Sql thread is running")
+        sys.stdout.write("Sql thread is running\n")
+        sys.stdout.flush()
         while True:
-            if len(main.queue) > 0:
+            if len(LogQueue.LogQueue.Instance().queue) > 0:
                 self.process_data()
-                main.queue.getLog()
+                sys.stdout.write("SQL - BEFORE getLog, queue len: " + str(len(LogQueue.LogQueue.Instance().queue)) + '\n')
+                sys.stdout.flush()
+                LogQueue.LogQueue.Instance().getLog()
+                sys.stdout.write("SQL - AFTER getLog, queue len: " + str(len(LogQueue.LogQueue.Instance().queue)) + '\n')
+                sys.stdout.flush()
 
     def initSql(self):
         mysql = MySQL()
@@ -44,4 +52,5 @@ class sqlThread(threading.Thread):
         data = self.cursor.fetchall()
 
         for website in data:
-            print(website)
+            sys.stdout.write("website: " + str(website) + '\n')
+            sys.stdout.flush()

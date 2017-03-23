@@ -39,10 +39,10 @@ class serverReception(threading.Thread):
 
 	@app.route('/log', methods = ['POST'])
 	def create_log():
-		sys.stdout.write(str(request.json) + '\n')
+		sys.stdout.write("RECEPTION - REQUEST JSON: " + str(request.json) + '\n')
 		sys.stdout.flush()
 		if LogQueue.LogQueue.Instance().addLog(request.json):
-			sys.stdout.write(str(LogQueue.LogQueue.Instance().queue) + '\n')
+			sys.stdout.write("RECEPTION - QUEUE STATE" + str(LogQueue.LogQueue.Instance().queue) + '\n')
 			sys.stdout.flush()
 			return make_response(jsonify( { 'success': 'Ok' } ), 200)
 		else:
