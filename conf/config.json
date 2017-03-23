@@ -3,7 +3,7 @@
     "url": "localhost",
     "user": "root",
     "password": "root",
-    "database": "ADMINISTRATION"
+    "database": "APPLICATION"
   },
   "host": "0.0.0.0",
   "port": 7890,

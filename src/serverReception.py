@@ -13,7 +13,6 @@ from flask import Flask, jsonify, make_response, request, abort
 configData = json.loads(json.dumps(main.configData))
 
 class serverReception(threading.Thread):
-
 	logger = logging.basicConfig(filename='logFile.log', level=logging.INFO)
 	app = Flask(__name__)
 
@@ -39,11 +38,7 @@ class serverReception(threading.Thread):
 
 	@app.route('/log', methods = ['POST'])
 	def create_log():
-		sys.stdout.write("RECEPTION - REQUEST JSON: " + str(request.json) + '\n')
-		sys.stdout.flush()
 		if LogQueue.LogQueue.Instance().addLog(request.json):
-			sys.stdout.write("RECEPTION - QUEUE STATE" + str(LogQueue.LogQueue.Instance().queue) + '\n')
-			sys.stdout.flush()
 			return make_response(jsonify( { 'success': 'Ok' } ), 200)
 		else:
 			return make_response(jsonify({'error': 'Service Unavailable - Queue is full'}), 503)
