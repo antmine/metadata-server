@@ -10,19 +10,8 @@ import run as main
 from flask import Flask
 from flaskext.mysql import MySQL
 
-configFilePath =  None;
-
-if (os.envrion['CONFIG_FILE'])
-	configFilePath = os.envrion['CONFIG_FILE']
-else
-	configFilePath = './conf/config.json'
-
-with open(configFilePath, 'r') as f:
+with open('./conf/' + os.getenv('CONFIG_FILE', 'config') + '.json', 'r') as f:
 	configData = json.load(f)
-
-
-
-
 
 class sqlThread(threading.Thread):
 
@@ -42,7 +31,7 @@ class sqlThread(threading.Thread):
         else:
             sqlRequest = 'INSERT INTO IS_BATTERY (ID_USER, VALUE_IS_BAT) VALUES (\''+json['id']+'\', '+json['isBattery']+');'
         self.cursor.execute(sqlRequest)
-        self.connection.commit()bdd
+        self.connection.commit()
 
     def run(self):
         sys.stdout.write("Sql thread is running\n")

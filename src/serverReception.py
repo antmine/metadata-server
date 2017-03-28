@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.5
 
 import sys
+import os
 import json
 import logging
 import LogQueue
@@ -10,14 +11,7 @@ import run as main
 from collections import deque
 from flask import Flask, jsonify, make_response, request, abort
 
-configFilePath =  None;
-
-if (os.envrion['CONFIG_FILE'])
-	configFilePath = os.envrion['CONFIG_FILE']
-else
-	configFilePath = './conf/config.json'
-
-with open(configFilePath, 'r') as f:
+with open('./conf/' + os.getenv('CONFIG_FILE', 'config') + '.json', 'r') as f:
 	configData = json.load(f)
 
 class serverReception(threading.Thread):
