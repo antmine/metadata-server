@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.5
 
 import json
+import os
 import sys
 import threading
 import LogQueue
@@ -9,8 +10,19 @@ import run as main
 from flask import Flask
 from flaskext.mysql import MySQL
 
-with open('./conf/config.json', 'r') as f:
+configFilePath =  None;
+
+if (os.envrion['CONFIG_FILE'])
+	configFilePath = os.envrion['CONFIG_FILE']
+else
+	configFilePath = './conf/config.json'
+
+with open(configFilePath, 'r') as f:
 	configData = json.load(f)
+
+
+
+
 
 class sqlThread(threading.Thread):
 
@@ -20,8 +32,6 @@ class sqlThread(threading.Thread):
 
     def __init__(self):
         self.initSql()
-        sys.stdout.write("Sql initialized\n")
-        sys.stdout.flush()
         threading.Thread.__init__(self)
 
     def checkEvent(self, json):
@@ -31,10 +41,8 @@ class sqlThread(threading.Thread):
             sqlRequest = 'INSERT INTO IS_TAB_ACTIV (ID_USER, VALUE_IS_TAB_ACT) VALUES (\''+json['id']+'\', '+json['isTabActiv']+');'
         else:
             sqlRequest = 'INSERT INTO IS_BATTERY (ID_USER, VALUE_IS_BAT) VALUES (\''+json['id']+'\', '+json['isBattery']+');'
-        sys.stdout.write(sqlRequest)
-        sys.stdout.flush()
         self.cursor.execute(sqlRequest)
-        self.connection.commit()
+        self.connection.commit()bdd
 
     def run(self):
         sys.stdout.write("Sql thread is running\n")

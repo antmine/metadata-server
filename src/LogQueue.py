@@ -7,7 +7,14 @@ from Singleton import Singleton
 from  collections import deque
 from threading import Thread
 
-with open('./conf/config.json', 'r') as f:
+configFilePath =  None;
+
+if (os.envrion['CONFIG_FILE'])
+	configFilePath = os.envrion['CONFIG_FILE']
+else
+	configFilePath = './conf/config.json'
+
+with open(configFilePath, 'r') as f:
 	configData = json.load(f)
 
 @Singleton
@@ -18,13 +25,9 @@ class LogQueue:
 
     def addLog(self, log):
         if (len(self.queue) >= self.size):
-            sys.stdout.write("queue is full wait...\n")
-            sys.stdout.flush()
             return False
         else:
             self.queue.append(log)
-            sys.stdout.write("added item to queue\n")
-            sys.stdout.flush()
             return True
 
     def getLog(self):

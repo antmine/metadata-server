@@ -6,7 +6,14 @@ import sqlThread
 
 from threading import Thread
 
-with open('./conf/config.json', 'r') as f:
+configFilePath =  None;
+
+if (os.envrion['CONFIG_FILE'])
+	configFilePath = os.envrion['CONFIG_FILE']
+else
+	configFilePath = './conf/config.json'
+
+with open(configFilePath, 'r') as f:
 	configData = json.load(f)
 
 if __name__ == '__main__':
