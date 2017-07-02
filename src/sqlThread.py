@@ -23,7 +23,9 @@ class sqlThread(threading.Thread):
 
 	def __init__(self):
 		self.initSql()
+		print('before threading')
 		threading.Thread.__init__(self)
+		print('after threading')
 
 	def checkEvent(self, json):
 		if 'isTabActive' in json:
@@ -63,13 +65,11 @@ class sqlThread(threading.Thread):
 
 	def initSql(self):
 		mysql = MySQL()
-		print('start sql connection')
 		self.app.config['MYSQL_DATABASE_USER'] = configData["mysql"]["user"]
 		self.app.config['MYSQL_DATABASE_PASSWORD'] = configData["mysql"]["password"]
 		self.app.config['MYSQL_DATABASE_HOST'] = configData["mysql"]["url"]
 		self.app.config['MYSQL_DATABASE_DB'] = configData["mysql"]["database"]
 		mysql.init_app(self.app)
-		print('sql connected')
 		self.connection = mysql.connect()
 		self.cursor = self.connection.cursor()
 
