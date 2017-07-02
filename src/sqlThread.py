@@ -23,9 +23,7 @@ class sqlThread(threading.Thread):
 
 	def __init__(self):
 		self.initSql()
-		print('before threading')
 		threading.Thread.__init__(self)
-		print('after threading')
 
 	def checkEvent(self, json):
 		if 'isTabActive' in json:
@@ -48,6 +46,7 @@ class sqlThread(threading.Thread):
 			print ("Unexpected error:", sys.exc_info()[1])
 
 	def run(self):
+		print('run')
 		sys.stdout.flush()
 		while True:
 			print('acquire')

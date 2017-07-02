@@ -14,9 +14,13 @@ with open('./conf/' + os.getenv('CONFIG_FILE', 'config') + '.json', 'r') as f:
 		try:
 			sys.stdout.write("server listening port: " + str(configData["port"]) + "\n")
 			### bdd Thread ###
+			print('1')
 			sql_thread = sqlThread.sqlThread()
+			print('2')
 			sql_thread.daemon = True
+			print('3')
 			sql_thread.start()
+			print('4')
 			### serverReception Thread ###
 			serverReception_thread = serverReception.serverReception()
 			serverReception_thread.daemon = True
