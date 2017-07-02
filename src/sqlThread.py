@@ -26,27 +26,41 @@ class sqlThread(threading.Thread):
 		threading.Thread.__init__(self)
 
 	def checkEvent(self, json):
-		if 'isDisconnected' in json:
-			sqlRequest = 'INSERT INTO IS_DISCONNECTED (ID_USER, VALUE_IS_DISCO) VALUES (\''+json['id']+'\', '+json['isDisconnected']+');'
-		elif 'isTabActiv' in json:
-			sqlRequest = 'INSERT INTO IS_TAB_ACTIV (ID_USER, VALUE_IS_TAB_ACT) VALUES (\''+json['id']+'\', '+json['isTabActiv']+');'
+		if 'isTabActive' in json:
+			sqlRequest = 'INSERT INTO MINER_EVENT (ID_MINER, URL, TAB_ACTIVE) \
+						  VALUES (' + str(json['id']) + ' , \'' + json['url'] + '\', ' + str(int(json['isTabActive'])) + ');'
+		elif 'isDisconnected' in json:
+			sqlRequest = 'INSERT INTO MINER_EVENT (ID_MINER, URL, DISCONNECTED) \
+						VALUES (' + str(json['id']) + ' , \'' + json['url'] + '\', ' + str(int(json['isDisconnected'])) + ');'
+		elif 'isOnBattery' in json:
+			sqlRequest = 'INSERT INTO MINER_EVENT (ID_MINER, URL, ON_BATTERY) \
+						VALUES (' + str(json['id']) + ' , \'' + json['url'] + '\', ' + str(int(json['isOnBattery'])) + ');'
 		else:
-			sqlRequest = 'INSERT INTO IS_BATTERY (ID_USER, VALUE_IS_BAT) VALUES (\''+json['id']+'\', '+json['isBattery']+');'
+			sqlRequest = ''
+
+		try:
+			print('send to database !!!')
 			self.cursor.execute(sqlRequest)
 			self.connection.commit()
+		except:
+			print ("Unexpected error:", sys.exc_info()[1])
 
 	def run(self):
-		sys.stdout.write("Sql thread is running\n")
-		sys.stdout.flush()
+		print('run')
+		# sys.stdout.flush()
 		while True:
+			print('acquire')
 			serverReception.condition.acquire()
 			if len(LogQueue.LogQueue.Instance().queue) > 0:
+				print('message !!!')
 				jsonData = LogQueue.LogQueue.Instance().getLog()
 				serverReception.condition.release()
 				self.checkEvent(jsonData)
-				self.process_data()
+				# self.process_data()
 			else:
+				print('wait !!!')
 				serverReception.condition.wait()
+				print('end wait !!!')
 
 	def initSql(self):
 		mysql = MySQL()

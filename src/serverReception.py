@@ -47,6 +47,7 @@ class serverReception(threading.Thread):
 		if LogQueue.LogQueue.Instance().addLog(request.json):
 			condition.notify()
 			condition.release()
+			print ("message received");
 			return make_response(jsonify( { 'success': 'Ok' } ), 200)
 		else:
 			condition.release()
