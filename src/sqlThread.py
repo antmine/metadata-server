@@ -39,6 +39,7 @@ class sqlThread(threading.Thread):
 			sqlRequest = ''
 
 		try:
+			print('send to database !!!')
 			self.cursor.execute(sqlRequest)
 			self.connection.commit()
 		except:
@@ -47,22 +48,28 @@ class sqlThread(threading.Thread):
 	def run(self):
 		sys.stdout.flush()
 		while True:
+			print('acquire')
 			serverReception.condition.acquire()
 			if len(LogQueue.LogQueue.Instance().queue) > 0:
+				print('message !!!')
 				jsonData = LogQueue.LogQueue.Instance().getLog()
 				serverReception.condition.release()
 				self.checkEvent(jsonData)
 				# self.process_data()
 			else:
+				print('wait !!!')
 				serverReception.condition.wait()
+				print('end wait !!!')
 
 	def initSql(self):
 		mysql = MySQL()
+		print('start sql connection')
 		self.app.config['MYSQL_DATABASE_USER'] = configData["mysql"]["user"]
 		self.app.config['MYSQL_DATABASE_PASSWORD'] = configData["mysql"]["password"]
 		self.app.config['MYSQL_DATABASE_HOST'] = configData["mysql"]["url"]
 		self.app.config['MYSQL_DATABASE_DB'] = configData["mysql"]["database"]
 		mysql.init_app(self.app)
+		print('sql connected')
 		self.connection = mysql.connect()
 		self.cursor = self.connection.cursor()
 
