@@ -39,28 +39,20 @@ class sqlThread(threading.Thread):
 			sqlRequest = ''
 
 		try:
-			print('send to database !!!')
 			self.cursor.execute(sqlRequest)
 			self.connection.commit()
 		except:
 			print ("Unexpected error:", sys.exc_info()[1])
 
 	def run(self):
-		print('run')
-		# sys.stdout.flush()
 		while True:
-			print('acquire')
 			serverReception.condition.acquire()
 			if len(LogQueue.LogQueue.Instance().queue) > 0:
-				print('message !!!')
 				jsonData = LogQueue.LogQueue.Instance().getLog()
 				serverReception.condition.release()
 				self.checkEvent(jsonData)
-				# self.process_data()
 			else:
-				print('wait !!!')
 				serverReception.condition.wait()
-				print('end wait !!!')
 
 	def initSql(self):
 		mysql = MySQL()
@@ -71,23 +63,3 @@ class sqlThread(threading.Thread):
 		mysql.init_app(self.app)
 		self.connection = mysql.connect()
 		self.cursor = self.connection.cursor()
-
-	def process_data(self):
-		sql = "SELECT * from IS_DISCONNECTED;"
-		self.cursor.execute(sql)
-		data = self.cursor.fetchall()
-		for values in data:
-			sys.stdout.write("events disconnected: " + str(values) + '\n')
-			sys.stdout.flush()
-		sql = "SELECT * from IS_BATTERY;"
-		self.cursor.execute(sql)
-		data = self.cursor.fetchall()
-		for values in data:
-			sys.stdout.write("events battery: " + str(values) + '\n')
-			sys.stdout.flush()
-		sql = "SELECT * from IS_TAB_ACTIV;"
-		self.cursor.execute(sql)
-		data = self.cursor.fetchall()
-		for values in data:
-			sys.stdout.write("events tabActiv: " + str(values) + '\n')
-			sys.stdout.flush()
