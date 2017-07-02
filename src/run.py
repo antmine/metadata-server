@@ -12,6 +12,7 @@ with open('./conf/' + os.getenv('CONFIG_FILE', 'config') + '.json', 'r') as f:
 
 	if __name__ == '__main__':
 		try:
+			sys.stdout.write("server listening port: " + str(configData["port"]) + "\n")
 			### bdd Thread ###
 			sql_thread = sqlThread.sqlThread()
 			sql_thread.daemon = True
