@@ -1,9 +1,10 @@
 {
-  "mysql":{
+  "SQL":{
+    "type": "mysql+pymysql://",
     "url": "localhost",
     "user": "root",
     "password": "root",
-    "database": "APPLICATION"
+    "databaseName": "APPLICATION"
   },
   "host": "0.0.0.0",
   "port": 7890,

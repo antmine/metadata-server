@@ -12,4 +12,4 @@ RUN pip install -r requirements.txt
 COPY . /usr/src/app
 
 EXPOSE 8080
-CMD [ "python", "src/run.py" ]
+CMD [ "python", "-d", "src/run.py" ]

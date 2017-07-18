@@ -10,15 +10,21 @@ import run as main
 
 from flask import Flask
 from flaskext.mysql import MySQL
+#sqlalchemy imports
+from sqlalchemy import create_engine, MetaData, Table
+
 import serverReception
 
 with open('./conf/' + os.getenv('CONFIG_FILE', 'config') + '.json', 'r') as f:
 	configData = json.load(f)
 
+
 class sqlThread(threading.Thread):
 
-	cursor = None
-	connection = None
+	engine = None
+	metadata = None
+	miner_event = None
+
 	app = Flask(__name__)
 
 	def __init__(self):
@@ -26,22 +32,14 @@ class sqlThread(threading.Thread):
 		threading.Thread.__init__(self)
 
 	def checkEvent(self, json):
-		if 'isTabActive' in json:
-			sqlRequest = 'INSERT INTO MINER_EVENT (ID_MINER, URL, TAB_ACTIVE) \
-						  VALUES (' + str(json['id']) + ' , \'' + json['url'] + '\', ' + str(int(json['isTabActive'])) + ');'
-		elif 'isDisconnected' in json:
-			sqlRequest = 'INSERT INTO MINER_EVENT (ID_MINER, URL, DISCONNECTED) \
-						VALUES (' + str(json['id']) + ' , \'' + json['url'] + '\', ' + str(int(json['isDisconnected'])) + ');'
-		elif 'isOnBattery' in json:
-			sqlRequest = 'INSERT INTO MINER_EVENT (ID_MINER, URL, ON_BATTERY) \
-						VALUES (' + str(json['id']) + ' , \'' + json['url'] + '\', ' + str(int(json['isOnBattery'])) + ');'
-		else:
-			sqlRequest = ''
-
 		try:
-			print('send to database !!!')
-			self.cursor.execute(sqlRequest)
-			self.connection.commit()
+			con = self.engine.connect()
+			if 'isTabActive' in json:
+				con.execute(self.miner_event.insert(), ID_MINER=json['id'], URL=json['url'], TAB_ACTIVE=json['isTabActive'])
+			elif 'isDisconnected' in json:
+				con.execute(self.miner_event.insert(), ID_MINER=json['id'], URL=json['url'], DISCONNECTED=json['isDisconnected'])
+			elif 'isOnBattery' in json:
+				con.execute(self.miner_event.insert(), ID_MINER=json['id'], URL=json['url'], ON_BATTERY=json['isOnBattery'])
 		except:
 			print ("Unexpected error:", sys.exc_info()[1])
 
@@ -56,38 +54,15 @@ class sqlThread(threading.Thread):
 				jsonData = LogQueue.LogQueue.Instance().getLog()
 				serverReception.condition.release()
 				self.checkEvent(jsonData)
-				# self.process_data()
 			else:
 				print('wait !!!')
 				serverReception.condition.wait()
 				print('end wait !!!')
 
 	def initSql(self):
-		mysql = MySQL()
-		self.app.config['MYSQL_DATABASE_USER'] = configData["mysql"]["user"]
-		self.app.config['MYSQL_DATABASE_PASSWORD'] = configData["mysql"]["password"]
-		self.app.config['MYSQL_DATABASE_HOST'] = configData["mysql"]["url"]
-		self.app.config['MYSQL_DATABASE_DB'] = configData["mysql"]["database"]
-		mysql.init_app(self.app)
-		self.connection = mysql.connect()
-		self.cursor = self.connection.cursor()
+			#create the connection with mysql db
+			self.engine = create_engine(configData["SQL"]["type"]+configData["SQL"]["user"]+':'+configData["SQL"]["password"]+'@' + configData["SQL"]["url"]+'/'+configData["SQL"]["databaseName"], convert_unicode=True)
+			self.metadata = MetaData(bind = self.engine)
 
-	def process_data(self):
-		sql = "SELECT * from IS_DISCONNECTED;"
-		self.cursor.execute(sql)
-		data = self.cursor.fetchall()
-		for values in data:
-			sys.stdout.write("events disconnected: " + str(values) + '\n')
-			sys.stdout.flush()
-		sql = "SELECT * from IS_BATTERY;"
-		self.cursor.execute(sql)
-		data = self.cursor.fetchall()
-		for values in data:
-			sys.stdout.write("events battery: " + str(values) + '\n')
-			sys.stdout.flush()
-		sql = "SELECT * from IS_TAB_ACTIV;"
-		self.cursor.execute(sql)
-		data = self.cursor.fetchall()
-		for values in data:
-			sys.stdout.write("events tabActiv: " + str(values) + '\n')
-			sys.stdout.flush()
+			#loads all the MINER_EVENT table details
+			self.miner_event = Table('MINER_EVENT', self.metadata, autoload=True)
