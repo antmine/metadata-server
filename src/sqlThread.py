@@ -44,20 +44,14 @@ class sqlThread(threading.Thread):
 			print ("Unexpected error:", sys.exc_info()[1])
 
 	def run(self):
-		print('run')
-		sys.stdout.flush()
 		while True:
-			print('acquire')
 			serverReception.condition.acquire()
 			if len(LogQueue.LogQueue.Instance().queue) > 0:
-				print('message !!!')
 				jsonData = LogQueue.LogQueue.Instance().getLog()
 				serverReception.condition.release()
 				self.checkEvent(jsonData)
 			else:
-				print('wait !!!')
 				serverReception.condition.wait()
-				print('end wait !!!')
 
 	def initSql(self):
 			#create the connection with mysql db
