@@ -8,10 +8,12 @@ import LogQueue
 import time
 import run as main
 
+from urlparse import urlparse
 from flask import Flask
 from flaskext.mysql import MySQL
 #sqlalchemy imports
 from sqlalchemy import create_engine, MetaData, Table
+from sqlalchemy.sql import select
 
 import serverReception
 
@@ -33,13 +35,16 @@ class sqlThread(threading.Thread):
 
 	def checkEvent(self, json):
 		try:
-			con = self.engine.connect()
-			if 'isTabActive' in json:
-				con.execute(self.miner_event.insert(), ID_MINER=json['id'], URL=json['url'], TAB_ACTIVE=json['isTabActive'])
-			elif 'isDisconnected' in json:
-				con.execute(self.miner_event.insert(), ID_MINER=json['id'], URL=json['url'], DISCONNECTED=json['isDisconnected'])
-			elif 'isOnBattery' in json:
-				con.execute(self.miner_event.insert(), ID_MINER=json['id'], URL=json['url'], ON_BATTERY=json['isOnBattery'])
+			conApp = self.engineApplication.connect()
+			conAdm = self.engineAdministration.connect()
+			if 'isMining' in json:
+				conApp.execute(self.miner_event.insert(), ID_MINER=json['id'], URL=json['url'], IS_MINING=json['isMining'])
+			elif 'newId' in json:
+				url = urlparse(json['url'])
+				conApp.execute(self.miner.insert(), ID_MINER=json['newId'], POWER_ESTIMATION=0)
+				result = conAdm.execute(select([self.website.c.ID_WEBSITE]).where(self.website.c.URL == url.netloc))
+				row = result.fetchone()
+				conApp.execute(self.miner_website.insert(), ID_MINER=json['newId'], ID_WEBSITE=row[self.website.c.ID_WEBSITE])
 		except:
 			print ("Unexpected error:", sys.exc_info()[1])
 
@@ -55,8 +60,13 @@ class sqlThread(threading.Thread):
 
 	def initSql(self):
 			#create the connection with mysql db
-			self.engine = create_engine(configData["SQL"]["type"]+configData["SQL"]["user"]+':'+configData["SQL"]["password"]+'@' + configData["SQL"]["url"]+'/'+configData["SQL"]["databaseName"], convert_unicode=True)
-			self.metadata = MetaData(bind = self.engine)
+			self.engineApplication = create_engine(configData["SQL"]["type"]+configData["SQL"]["user"]+':'+configData["SQL"]["password"]+'@' + configData["SQL"]["url"]+'/'+configData["SQL"]["databaseName"], convert_unicode=True)
+			self.engineAdministration = create_engine(configData["SQL"]["type"]+configData["SQL"]["user"]+':'+configData["SQL"]["password"]+'@' + configData["SQL"]["url"]+'/ADMINISTRATION', convert_unicode=True)
+			self.metadataApplication = MetaData(bind = self.engineApplication)
+			self.metadataAdministration = MetaData(bind=self.engineAdministration)
 
-			#loads all the MINER_EVENT table details
-			self.miner_event = Table('MINER_EVENT', self.metadata, autoload=True)
+			#loads all the MINER_EVENT & MINER_WEBSITE table details
+			self.miner_event = Table('MINER_EVENT', self.metadataApplication, autoload=True)
+			self.miner_website = Table('MINER_WEBSITE', self.metadataApplication, autoload=True)
+			self.miner = Table('MINER', self.metadataApplication, autoload=True)
+			self.website = Table('WEBSITE', self.metadataAdministration, autoload=True)
