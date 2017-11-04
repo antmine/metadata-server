@@ -8,9 +8,9 @@ import LogQueue
 import time
 import run as main
 
-from urlparse import urlparse
+from urllib.parse import urlparse
 from flask import Flask
-from flask.ext.mysql import MySQL
+# from flask.ext.mysql import MySQL
 #sqlalchemy imports
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.sql import select
