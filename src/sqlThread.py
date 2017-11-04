@@ -10,7 +10,7 @@ import run as main
 
 from urlparse import urlparse
 from flask import Flask
-from flaskext.mysql import MySQL
+from flask.ext.mysql import MySQL
 #sqlalchemy imports
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.sql import select
