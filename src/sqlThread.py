@@ -37,14 +37,17 @@ class sqlThread(threading.Thread):
 		try:
 			conApp = self.engineApplication.connect()
 			conAdm = self.engineAdministration.connect()
-			if 'isMining' in json:
-				conApp.execute(self.miner_event.insert(), ID_MINER=json['id'], URL=json['url'], IS_MINING=json['isMining'])
-			elif 'newId' in json:
+			if 'newId' in json:
 				url = urlparse(json['url'])
 				conApp.execute(self.miner.insert(), ID_MINER=json['newId'], POWER_ESTIMATION=0)
 				result = conAdm.execute(select([self.website.c.ID_WEBSITE]).where(self.website.c.URL == url.netloc))
 				row = result.fetchone()
 				conApp.execute(self.miner_website.insert(), ID_MINER=json['newId'], ID_WEBSITE=row[self.website.c.ID_WEBSITE])
+			elif 'scriptState' in json:
+				if json['scriptState'] == 'stop':
+					conApp.execute(self.miner_event.insert(), ID_MINER=json['id'], URL=json['url'], IS_MINING=False)
+				else:
+					conApp.execute(self.miner_event.insert(), ID_MINER=json['id'], URL=json['url'], IS_MINING=True)
 		except:
 			print ("Unexpected error:", sys.exc_info()[1])
 
